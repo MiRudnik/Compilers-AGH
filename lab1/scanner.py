@@ -31,7 +31,7 @@ def t_ID(t):
 
 
 def t_FLOAT(t):
-    r'[+-]?\d*((\d\.|\.\d)\d*([Ee][+-]?\d+)?|\d([Ee][+-]?\d+))'
+    r'\d*((\d\.|\.\d)\d*([Ee][+-]?\d+)?|\d([Ee][+-]?\d+))'
     t.value = float(t.value)
     return t
 
