@@ -1,5 +1,7 @@
 import lab1.scanner as scanner
 import ply.yacc as yacc
+import sys
+sys.path.append("..")
 
 tokens = scanner.tokens
 
@@ -16,7 +18,7 @@ symtab = {}
 
 def p_error(p):
     if p:
-        print("Syntax error at line {0}, column {1}: LexToken({2}, '{3}')".format(p.lineno, scanner.find_tok_column(p),
+        print("Syntax error at line {0}, column {1}: LexToken({2}, '{3}')".format(p.lineno, scanner.find_column(p),
                                                                                   p.type, p.value))
     else:
         print("Unexpected end of input")
@@ -40,7 +42,7 @@ def p_expression_var(p):
         p[0] = val
     else:
         p[0] = 0
-        print("%s not used\n" %p[1])
+        print("%s not used\n" % p[1])
 
 
 def p_expression_assign(t):
@@ -90,13 +92,13 @@ def p_expression_relop(t):
 
 
 def p_expr_uminus(p):
-    'expression : - expression %prec U_MINUS'
+    '''expression : '-' expression %prec U_MINUS'''
     p[0] = -p[2]
 
 
 def p_expr_transpose(p):
-    'expression : \' expression %prec TRANSPOSE'
-    p[0] = p[2]
+    '''expression : expression \' %prec TRANSPOSE'''
+    p[0] = p[1]
 
 
 parser = yacc.yacc()

@@ -1,5 +1,7 @@
 import sys
-import lab1.scanner as scanner
+import scanner
+
+sys.path.append("..")
 
 if __name__ == '__main__':
 

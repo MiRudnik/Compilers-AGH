@@ -1,6 +1,7 @@
 import sys
+sys.path.append("..")
 import lab1.scanner as scanner
-import lab2.Mparser as Mparser
+import Mparser
 
 if __name__ == '__main__':
 
