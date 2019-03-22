@@ -1,12 +1,14 @@
 import ply.lex as lex
 
-literals = ['+', '-', '*', '/', '(', ')', '[', ']', '{', '}', '<', '>', '\'', ':', ',', ';', '=']
+literals = ['+', '-', '*', '/', '(', ')', '[', ']', '{', '}', '<', '>', ':', ',', ';', '=']
 
-tokens = ('M_ADD', 'M_SUB', 'M_MUL', 'M_DIV', 'A_ADD', 'A_SUB', 'A_MUL', 'A_DIV', 'GE', 'LE', 'EQ', 'NEQ', 'IF', 'FOR',
-          'ELSE', 'WHILE', 'BREAK', 'RETURN', 'CONTINUE', 'EYE', 'ZEROS', 'ONES', 'PRINT', 'ID', 'FLOAT', 'INT',
-          'STRING', 'COMMENT')
+tokens = ('TRANSPOSE', 'M_ADD', 'M_SUB', 'M_MUL', 'M_DIV', 'A_ADD', 'A_SUB', 'A_MUL', 'A_DIV', 'GE', 'LE', 'EQ', 'NEQ',
+          'IF', 'FOR', 'ELSE', 'WHILE', 'BREAK', 'RETURN', 'CONTINUE', 'EYE', 'ZEROS', 'ONES', 'PRINT', 'ID',
+          'FLOAT', 'INT', 'STRING', 'COMMENT')
 
 reserved = ['if', 'then', 'else', 'while', 'break', 'return', 'continue', 'eye', 'zeros', 'ones', 'print']
+
+t_TRANSPOSE = r'\''
 
 t_M_ADD = r'\.\+'
 t_M_SUB = r'\.-'
@@ -56,9 +58,13 @@ def t_newline(t):
     t.lexer.lineno += len(t.value)
 
 
-def find_column(input, token):
-    line_start = input.rfind('\n', 0, token.lexpos) + 1
-    return (token.lexpos - line_start) + 1
+def find_column(t):
+    split_text = lexer.lexdata.split('\n')
+    pos = 0
+    for line in split_text:
+        if pos + len(line) > t.lexpos:
+            return t.lexpos - pos + 1
+        pos += len(line) + 1
 
 
 def t_error(t):
