@@ -1,4 +1,4 @@
-import scanner
+import lab1.scanner as scanner
 import ply.yacc as yacc
 
 tokens = scanner.tokens
@@ -96,12 +96,7 @@ def p_expr_uminus(p):
 
 def p_expr_transpose(p):
     'expression : \' expression %prec TRANSPOSE'
-    p[0] = -p[2]
-
-
-
-# to finish the grammar
-# ....
+    p[0] = p[2]
 
 
 parser = yacc.yacc()

@@ -1,6 +1,6 @@
 import sys
-import scanner
-import Mparser
+import lab1.scanner as scanner
+import lab2.Mparser as Mparser
 
 if __name__ == '__main__':
 
