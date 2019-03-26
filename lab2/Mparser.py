@@ -115,7 +115,8 @@ def p_assignable(p):
     '''assignable : relop
                   | expression
                   | STRING
-                  | matrix_function '''
+                  | matrix_function
+                  | array '''
 
 
 def p_relop(p):
@@ -131,6 +132,22 @@ def p_matrix_functions(p):
     '''matrix_function : ZEROS '(' INT ')'
                        | ONES '(' INT ')'
                        | EYE '(' INT ')' '''
+
+
+def p_array(p):
+    '''array :  '[' values ']' '''
+
+
+def p_value(p):
+    '''value : number
+             | STRING '''
+
+
+def p_values(p):
+    '''values :
+              | values value ','
+              | values value ';'
+              | values value '''
 
 
 def p_expression_binop(p):
