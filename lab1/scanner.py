@@ -4,7 +4,7 @@ literals = ['+', '-', '*', '/', '(', ')', '[', ']', '{', '}', '<', '>', ':', ','
 
 tokens = ('TRANSPOSE', 'M_ADD', 'M_SUB', 'M_MUL', 'M_DIV', 'A_ADD', 'A_SUB', 'A_MUL', 'A_DIV', 'GE', 'LE', 'EQ', 'NEQ',
           'IF', 'FOR', 'ELSE', 'WHILE', 'BREAK', 'RETURN', 'CONTINUE', 'EYE', 'ZEROS', 'ONES', 'PRINT', 'ID',
-          'FLOAT', 'INT', 'STRING', 'COMMENT')
+          'FLOAT', 'INT', 'STRING')
 
 reserved = ['if', 'then', 'else', 'while', 'for', 'break', 'return', 'continue', 'eye', 'zeros', 'ones', 'print']
 

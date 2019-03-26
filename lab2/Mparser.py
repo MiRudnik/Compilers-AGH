@@ -81,6 +81,10 @@ def p_instruction_assign(p):
                           | ID A_DIV assignable ';' '''
 
 
+def p_instruction_assign_array_element(p):
+    '''instruction_assign : ID '[' INT ',' INT ']' '=' assignable ';' '''
+
+
 def p_instruction_print(p):
     '''instruction_print : PRINT args ';' '''
 
