@@ -135,19 +135,23 @@ def p_matrix_functions(p):
 
 
 def p_array(p):
-    '''array :  '[' values ']' '''
+    '''array :  '[' rows ']'
+             | '[' ']' '''
+
+
+def p_rows(p):
+    '''rows : values
+           | values ';' rows '''
+
+
+def p_values(p):
+    '''values : value
+              | value ',' values '''
 
 
 def p_value(p):
     '''value : number
              | STRING '''
-
-
-def p_values(p):
-    '''values :
-              | values value ','
-              | values value ';'
-              | values value '''
 
 
 def p_expression_binop(p):
