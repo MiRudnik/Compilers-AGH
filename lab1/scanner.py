@@ -6,7 +6,7 @@ tokens = ('TRANSPOSE', 'M_ADD', 'M_SUB', 'M_MUL', 'M_DIV', 'A_ADD', 'A_SUB', 'A_
           'IF', 'FOR', 'ELSE', 'WHILE', 'BREAK', 'RETURN', 'CONTINUE', 'EYE', 'ZEROS', 'ONES', 'PRINT', 'ID',
           'FLOAT', 'INT', 'STRING', 'COMMENT')
 
-reserved = ['if', 'then', 'else', 'while', 'break', 'return', 'continue', 'eye', 'zeros', 'ones', 'print']
+reserved = ['if', 'then', 'else', 'while', 'for', 'break', 'return', 'continue', 'eye', 'zeros', 'ones', 'print']
 
 t_TRANSPOSE = r'\''
 
