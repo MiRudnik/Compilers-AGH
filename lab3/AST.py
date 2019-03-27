@@ -31,9 +31,15 @@ class RelExpr(Node):
         self.right = right
 
 
-# ...
-# fill out missing classes
-# ...
+class Transpose(Node):
+    def __init__(self, name):
+        self.name = name
+
+
+class UMinus(Node):
+    def __init__(self, name):
+        self.name = name
+
 
 class Error(Node):
     def __init__(self):

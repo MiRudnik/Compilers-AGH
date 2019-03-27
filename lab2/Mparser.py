@@ -1,4 +1,5 @@
 import lab1.scanner as scanner
+import lab3.AST as AST
 import ply.yacc as yacc
 import sys
 sys.path.append("..")
@@ -89,15 +90,15 @@ def p_instruction_print(p):
     '''instruction_print : PRINT args ';' '''
 
 
-def p_instrucion_break(p):
+def p_instruction_break(p):
     '''instruction_break : BREAK ';' '''
 
 
-def p_instrucion_continue(p):
+def p_instruction_continue(p):
     '''instruction_continue : CONTINUE ';' '''
 
 
-def p_instrucion_return(p):
+def p_instruction_return(p):
     '''instruction_return : RETURN assignable ';'
                           | RETURN ';' '''
 
@@ -115,8 +116,8 @@ def p_assignable(p):
     '''assignable : relop
                   | expression
                   | STRING
-                  | matrix_function
                   | array '''
+    p[0] = p[1]
 
 
 def p_relop(p):
@@ -126,12 +127,13 @@ def p_relop(p):
              | expression NEQ expression
              | expression '>' expression
              | expression '<' expression '''
+    p[0] = AST.RelExpr(p[2], p[1], p[3])
 
 
 def p_matrix_functions(p):
-    '''matrix_function : ZEROS '(' INT ')'
-                       | ONES '(' INT ')'
-                       | EYE '(' INT ')' '''
+    '''expression : ZEROS '(' INT ')'
+                  | ONES '(' INT ')'
+                  | EYE '(' INT ')' '''
 
 
 def p_array(p):
@@ -141,7 +143,9 @@ def p_array(p):
 
 def p_rows(p):
     '''rows : values
-           | values ';' rows '''
+           | values ';' rows
+           | array
+           | array ',' rows '''
 
 
 def p_values(p):
@@ -152,6 +156,7 @@ def p_values(p):
 def p_value(p):
     '''value : number
              | STRING '''
+    p[0] = p[1]
 
 
 def p_expression_binop(p):
@@ -163,24 +168,33 @@ def p_expression_binop(p):
                   | expression M_SUB expression
                   | expression M_MUL expression
                   | expression M_DIV expression '''
+    p[0] = AST.BinExpr(p[2], p[1], p[3])
 
 
 def p_expr_transpose(p):
     '''expression : ID TRANSPOSE '''
+    p[0] = AST.Transpose(p[1])
 
 
 def p_expr_uminus(p):
     '''expression : - expression %prec U_MINUS '''
+    p[0] = AST.UMinus(p[2])
 
 
 def p_expression(p):
     '''expression : number
                   | ID '''
+    p[0] = p[1]
 
 
 def p_number(p):
-    '''number : INT
-              | FLOAT '''
+    '''number : INT '''
+    p[0] = AST.IntNum(p[1])
+
+
+def p_float(p):
+    '''number : FLOAT '''
+    p[0] = AST.FloatNum(p[1])
 
 
 parser = yacc.yacc()
