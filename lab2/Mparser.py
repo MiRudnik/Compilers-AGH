@@ -72,6 +72,7 @@ def p_instruction_while(p):
 
 def p_instruction_for(p):
     '''instruction_for : FOR ID '=' range instruction '''
+    p[0] = AST.For(p[2], p[4], p[5])
 
 
 def p_instruction_assign(p):
@@ -80,10 +81,16 @@ def p_instruction_assign(p):
                           | ID A_SUB assignable ';'
                           | ID A_MUL assignable ';'
                           | ID A_DIV assignable ';' '''
+    p[0] = AST.Assign(p[2], p[1], p[3])
 
 
 def p_instruction_assign_array_element(p):
-    '''instruction_assign : ID '[' INT ',' INT ']' '=' assignable ';' '''
+    '''instruction_assign : ID '[' INT ',' INT ']' '=' assignable ';'
+                          | ID '[' INT ',' INT ']' A_ADD assignable ';'
+                          | ID '[' INT ',' INT ']' A_SUB assignable ';'
+                          | ID '[' INT ',' INT ']' A_MUL assignable ';'
+                          | ID '[' INT ',' INT ']' A_DIV assignable ';' '''
+    p[0] = AST.Assign(p[7], AST.Ref(p[1], p[3], p[5]), p[8])
 
 
 def p_instruction_print(p):
@@ -110,6 +117,7 @@ def p_args(p):
 
 def p_range(p):
     '''range : expression ':' expression '''
+    p[0] = AST.Range(p[1], p[3])
 
 
 def p_assignable(p):
@@ -134,11 +142,16 @@ def p_matrix_functions(p):
     '''expression : ZEROS '(' INT ')'
                   | ONES '(' INT ')'
                   | EYE '(' INT ')' '''
+    p[0] = AST.MatrixFunc(p[1], p[3])
 
 
 def p_array(p):
     '''array :  '[' rows ']'
              | '[' ']' '''
+    if len(p) == 4:
+        p[0] = p[2]
+    else:
+        p[0] = AST.Values([])
 
 
 def p_rows(p):
@@ -146,11 +159,21 @@ def p_rows(p):
            | values ';' rows
            | array
            | array ',' rows '''
+    if len(p) == 2:
+        p[0] = AST.Values([p[1]])
+    else:
+        p[0] = p[3]
+        p[0].addValue(p[1])
 
 
 def p_values(p):
     '''values : value
               | value ',' values '''
+    if len(p) == 2:
+        p[0] = AST.Values([p[1]])
+    else:
+        p[0] = p[3]
+        p[0].addValue(p[1])
 
 
 def p_value(p):
