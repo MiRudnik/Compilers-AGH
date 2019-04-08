@@ -26,23 +26,22 @@ def p_error(p):
 
 
 def p_program(p):
-    '''program : instructions_opt '''
+    '''program : instructions
+               | '''
+    if len(p) == 2:
+        p[0] = AST.Program(p[1])
+    else:
+        p[0] = AST.Program()
 
 
-def p_instructions_opt_1(p):
-    '''instructions_opt : instructions '''
-
-
-def p_instructions_opt_2(p):
-    '''instructions_opt : '''
-
-
-def p_instructions_1(p):
-    '''instructions : instructions instruction '''
-
-
-def p_instructions_2(p):
-    '''instructions : instruction '''
+def p_instructions(p):
+    '''instructions : instructions instruction
+                    | instruction '''
+    if len(p) == 2:
+        p[0] = AST.Instructions([p[1]])
+    else:
+        p[0] = p[1]
+        p[0].addInstruction(p[2])
 
 
 def p_instruction(p):
@@ -55,19 +54,26 @@ def p_instruction(p):
                    | instruction_break
                    | instruction_continue
                    | instruction_return '''
+    p[0] = p[1]
 
 
 def p_instruction_set(p):
     '''instruction_set : '{' instructions '}' '''
+    p[0] = AST.InstructionSet(p[2])
 
 
 def p_instruction_if(p):
     '''instruction_if : IF '(' assignable ')' instruction %prec IF
                       | IF '(' assignable ')' instruction ELSE instruction '''
+    if len(p) == 8:
+        p[0] = AST.If(p[3], p[5], p[7])
+    else:
+        p[0] = AST.If(p[3], p[5])
 
 
 def p_instruction_while(p):
     '''instruction_while : WHILE '(' assignable ')' instruction '''
+    p[0] = AST.While(p[3], p[5])
 
 
 def p_instruction_for(p):
@@ -95,24 +101,36 @@ def p_instruction_assign_array_element(p):
 
 def p_instruction_print(p):
     '''instruction_print : PRINT args ';' '''
+    p[0] = AST.Print(p[2])
 
 
 def p_instruction_break(p):
     '''instruction_break : BREAK ';' '''
+    p[0] = AST.Break()
 
 
 def p_instruction_continue(p):
     '''instruction_continue : CONTINUE ';' '''
+    p[0] = AST.Continue()
 
 
 def p_instruction_return(p):
     '''instruction_return : RETURN assignable ';'
                           | RETURN ';' '''
+    if len(p) == 4:
+        p[0] = AST.Return(p[2])
+    else:
+        p[0] = AST.Return('')
 
 
 def p_args(p):
     '''args : args ',' assignable
             | assignable '''
+    if len(p) == 2:
+        p[0] = AST.Args([p[1]])
+    else:
+        p[0] = p[1]
+        p[0].addArg(p[3])
 
 
 def p_range(p):

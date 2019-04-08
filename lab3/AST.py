@@ -2,6 +2,24 @@ class Node(object):
     pass
 
 
+class Program(Node):
+    def __init__(self, instructions_opt=None):
+        self.instructions_opt = instructions_opt
+
+
+class Instructions(Node):
+    def __init__(self, list):
+        self.list = list
+
+    def addInstruction(self, value):
+        self.list.append(value)
+
+
+class InstructionSet(Node):
+    def __init__(self, instructions):
+        self.instructions = instructions
+
+
 class IntNum(Node):
     def __init__(self, value):
         self.value = value
@@ -96,6 +114,41 @@ class For(Node):
         self.instruction = instruction
 
 
+class If(Node):
+    def __init__(self, condition, if_expression, else_expression=None):
+        self.condition = condition
+        self.if_expression = if_expression
+        self.else_expression = else_expression
+
+
 class Error(Node):
     def __init__(self):
         pass
+
+
+class Break(Node):
+    def __init__(self):
+        self.name = 'BREAK'
+
+
+class Continue(Node):
+    def __init__(self):
+        self.name = 'CONTINUE'
+
+
+class Print(Node):
+    def __init__(self, content):
+        self.content = content
+
+
+class Return(Node):
+    def __init__(self, content):
+        self.content = content
+
+
+class Args(Node):
+    def __init__(self, list):
+        self.list = list
+
+    def addArg(self, arg):
+        self.list.append(arg)
