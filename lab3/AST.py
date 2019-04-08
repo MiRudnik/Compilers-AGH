@@ -3,13 +3,19 @@ class Node(object):
 
 
 class Program(Node):
-    def __init__(self, instructions_opt=None):
-        self.instructions_opt = instructions_opt
+    def __init__(self, instructions=None):
+        self.instructions = instructions
+
+    def __repr__(self):
+         return '{}'.format(self.instructions)
 
 
 class Instructions(Node):
     def __init__(self, list):
         self.list = list
+
+    def __repr__(self):
+        return '{}'.format(self.list)
 
     def addInstruction(self, value):
         self.list.append(value)
@@ -19,20 +25,32 @@ class InstructionSet(Node):
     def __init__(self, instructions):
         self.instructions = instructions
 
+    def __repr__(self):
+        return '{ {} }'.format(self.instructions)
+
 
 class IntNum(Node):
     def __init__(self, value):
         self.value = value
+
+    def __repr__(self):
+        return '{}'.format(self.value)
 
 
 class FloatNum(Node):
     def __init__(self, value):
         self.value = value
 
+    def __repr__(self):
+        return '{}'.format(self.value)
+
 
 class Variable(Node):
     def __init__(self, name):
         self.name = name
+
+    def __repr__(self):
+        return '{}'.format(self.name)
 
 
 class BinExpr(Node):
@@ -41,6 +59,9 @@ class BinExpr(Node):
         self.left = left
         self.right = right
 
+    def __repr__(self):
+        return '{} {} {}'.format(self.left, self.op, self.right)
+
 
 class RelExpr(Node):
     def __init__(self, op, left, right):
@@ -48,20 +69,32 @@ class RelExpr(Node):
         self.left = left
         self.right = right
 
+    def __repr__(self):
+        return '{} {} {}'.format(self.left, self.op, self.right)
+
 
 class Transpose(Node):
     def __init__(self, name):
         self.name = name
+
+    def __repr__(self):
+        return 'TRANSPOSE {}'.format(self.name)
 
 
 class UMinus(Node):
     def __init__(self, name):
         self.name = name
 
+    def __repr__(self):
+        return '- {}'.format(self.name)
+
 
 class Values(Node):
     def __init__(self, list):
         self.list = list
+
+    def __repr__(self):
+        return '{}'.format(self.list)
 
     def addValue(self, value):
         self.list.append(value)
@@ -70,6 +103,9 @@ class Values(Node):
 class Rows(Node):
     def __init__(self, list):
         self.list = list
+
+    def __repr__(self):
+        return '{}'.format(self.list)
 
     def addValue(self, value):
         self.list.append(value)
@@ -86,12 +122,18 @@ class Range(Node):
         self.left = left
         self.right = right
 
+    def __repr__(self):
+        return '{}:{}'.format(self.left, self.right)
+
 
 class Assign(Node):
     def __init__(self, op, left, right):
         self.op = op
         self.left = left
         self.right = right
+
+    def __repr__(self):
+        return '{} {} {}'.format(self.left, self.op, self.right)
 
 
 class Ref(Node):
@@ -100,11 +142,17 @@ class Ref(Node):
         self.x = x
         self.y = y
 
+    def __repr__(self):
+        return '{}[{},{}]'.format(self.name, self.x, self.y)
+
 
 class While(Node):
     def __init__(self, assignable, instruction):
         self.assignable = assignable
         self.instruction = instruction
+
+    def __repr__(self):
+        return 'WHILE {} DO {}'.format(self.assignable, self.instruction)
 
 
 class For(Node):
@@ -113,6 +161,9 @@ class For(Node):
         self.range = range
         self.instruction = instruction
 
+    def __repr__(self):
+        return 'FOR {} IN {} DO {}'.format(self.name, self.range, self.instruction)
+
 
 class If(Node):
     def __init__(self, condition, if_expression, else_expression=None):
@@ -120,35 +171,55 @@ class If(Node):
         self.if_expression = if_expression
         self.else_expression = else_expression
 
+    def __repr__(self):
+        basic = 'IF {} THEN {}'.format(self.condition, self.if_expression)
+        elsePart = ' ELSE {}'.format(self.else_expression) if self.else_expression else ''
+
+        return basic + elsePart
+
 
 class Error(Node):
-    def __init__(self):
-        pass
+    pass
 
 
 class Break(Node):
     def __init__(self):
         self.name = 'BREAK'
 
+    def __repr__(self):
+        return self.name
+
 
 class Continue(Node):
     def __init__(self):
         self.name = 'CONTINUE'
+
+    def __repr__(self):
+        return self.name
 
 
 class Print(Node):
     def __init__(self, content):
         self.content = content
 
+    def __repr__(self):
+        return 'PRINT {}'.format(self.content)
+
 
 class Return(Node):
     def __init__(self, content):
         self.content = content
 
+    def __repr__(self):
+        return 'RETURN {}'.format(self.content)
+
 
 class Args(Node):
     def __init__(self, list):
         self.list = list
+
+    def __repr__(self):
+        return '{}'.format(self.list)
 
     def addArg(self, arg):
         self.list.append(arg)
