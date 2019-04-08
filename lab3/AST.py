@@ -2,33 +2,6 @@ class Node(object):
     pass
 
 
-class Program(Node):
-    def __init__(self, instructions=None):
-        self.instructions = instructions
-
-    def __repr__(self):
-         return '{}'.format(self.instructions)
-
-
-class Instructions(Node):
-    def __init__(self, list):
-        self.list = list
-
-    def __repr__(self):
-        return '{}'.format(self.list)
-
-    def addInstruction(self, value):
-        self.list.append(value)
-
-
-class InstructionSet(Node):
-    def __init__(self, instructions):
-        self.instructions = instructions
-
-    def __repr__(self):
-        return '{ {} }'.format(self.instructions)
-
-
 class IntNum(Node):
     def __init__(self, value):
         self.value = value
@@ -98,6 +71,17 @@ class Values(Node):
 
     def addValue(self, value):
         self.list.append(value)
+
+
+class Vector(Node):
+    def __init__(self, elements):
+        self.elements = elements
+
+    def __repr__(self):
+        return '{}'.format(self.elements)
+
+    def addValue(self, value):
+        self.elements.append(value)
 
 
 class Rows(Node):
@@ -207,11 +191,11 @@ class Print(Node):
 
 
 class Return(Node):
-    def __init__(self, content):
+    def __init__(self, content=None):
         self.content = content
 
     def __repr__(self):
-        return 'RETURN {}'.format(self.content)
+        return 'RETURN {}'.format(self.content) if self.content else 'RETURN'
 
 
 class Args(Node):
@@ -223,3 +207,22 @@ class Args(Node):
 
     def addArg(self, arg):
         self.list.append(arg)
+
+
+class Instructions(Node):
+    def __init__(self, list):
+        self.list = list
+
+    def __repr__(self):
+        return '{}'.format(self.list)
+
+    def addInstruction(self, value):
+        self.list.append(value)
+
+
+class Program(Node):
+    def __init__(self, instructions=None):
+        self.instructions = instructions
+
+    def __repr__(self):
+        return '{}'.format(self.instructions) if self.instructions else ''
