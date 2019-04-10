@@ -1,4 +1,21 @@
-#!/usr/bin/python
+from collections import defaultdict
+
+
+def nested_dict():
+    return defaultdict(nested_dict)
+
+
+typ = nested_dict()
+standard_ops = ['+', '-', '*', '/']
+matrix_ops = ['.+', '.-', '.*', './']
+relation_ops = ['<', '>', '>=', '<=', '==', '!=']
+assign_ops = ['+=', '-=', '*=', '/=']
+
+for op in standard_ops + assign_ops:
+    typ[op]['int']['float'] = 'float'
+    typ[op]['float']['int'] = 'float'
+    typ[op]['float']['float'] = 'float'
+    typ[op]['int']['int'] = 'int'
 
 
 class NodeVisitor(object):

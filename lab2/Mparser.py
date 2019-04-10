@@ -6,11 +6,11 @@ sys.path.append("..")
 
 tokens = scanner.tokens
 
+has_errors = False
+
 precedence = (
     ("left", 'IF'),
     ("left", 'ELSE'),
-    ("left", 'ID'),
-    ("left", '['),
     ("nonassoc", 'GE', 'LE', 'EQ', 'NEQ', '<', '>'),
     ("left", 'M_ADD', 'M_SUB', '+', '-'),
     ("left", 'M_MUL', 'M_DIV', '*', '/'),
@@ -20,6 +20,8 @@ precedence = (
 
 
 def p_error(p):
+    global has_errors
+    has_errors = True
     if p:
         print("Syntax error at line {0}, column {1}: LexToken({2}, '{3}')".format(p.lineno, scanner.find_column(p),
                                                                                   p.type, p.value))
@@ -208,51 +210,6 @@ def p_value(p):
     '''value : number
              | STRING '''
     p[0] = p[1]
-
-
-# def p_vector(p):
-#     '''vector :  '[' rows ']'
-#               | '[' ']' '''
-#     if len(p) == 4:
-#         p[0] = AST.Vector(p[2])
-#     else:
-#         p[0] = AST.Vector([])
-#
-#
-# def p_rows_1(p):
-#     '''rows : values
-#            | values ';' rows '''
-#     if len(p) == 2:
-#         p[0] = AST.Values([p[1]])
-#     else:
-#         p[0] = p[3]
-#         p[0].addValue(p[1])
-#
-#
-# def p_rows_2(p):
-#     '''rows : vector
-#             | vector ',' rows '''
-#     if len(p) == 2:
-#         p[0] = AST.Values([p[1]])
-#     else:
-#         p[0] = p[3]
-#         p[0].addValue(p[1])
-#
-#
-# def p_values(p):
-#     '''values : value
-#               | value ',' values '''
-#     if len(p) == 2:
-#         p[0] = AST.Values([p[1]])
-#     else:
-#         p[0] = p[3]
-#         p[0].addValue(p[1])
-#
-#
-# def p_value(p):
-#     '''value : number
-#              | STRING '''
-#     p[0] = p[1]
 
 
 def p_expression_binop(p):

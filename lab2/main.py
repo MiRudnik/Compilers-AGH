@@ -15,4 +15,3 @@ if __name__ == '__main__':
     parser = Mparser.parser
     text = file.read()
     res = parser.parse(text, lexer=scanner.lexer)
-    print(res)
