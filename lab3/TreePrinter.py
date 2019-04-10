@@ -71,11 +71,8 @@ class TreePrinter:
 
     @addToClass(AST.Values)
     def printTree(self, indent=0):
-        for _i in range(indent):
-            print("|\t", end='')
-        print("VALUES")
         for val in self.list:
-            val.printTree(indent+1)
+            val.printTree(indent)
 
     @addToClass(AST.Vector)
     def printTree(self, indent=0):
