@@ -1,4 +1,5 @@
 from collections import defaultdict
+import lab3.AST as AST
 
 
 def nested_dict():
@@ -74,5 +75,11 @@ class TypeChecker(NodeVisitor):
         # ...
         #
 
-    def visit_Variable(self, node):
-        pass
+    def visit_IntNum(self, node):
+        return 'int'
+
+    def visit_FloatNum(self, node):
+        return 'float'
+
+    def visit_String(selfself, node):
+        return 'string'

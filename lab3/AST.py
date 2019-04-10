@@ -18,6 +18,14 @@ class FloatNum(Node):
         return '{}'.format(self.value)
 
 
+class String(Node):
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self):
+        return '{}'.format(self.value)
+
+
 class Variable(Node):
     def __init__(self, name):
         self.name = name
@@ -52,6 +60,9 @@ class Transpose(Node):
 
     def __repr__(self):
         return 'TRANSPOSE {}'.format(self.name)
+
+    def accept(self, visitor):
+        visitor.visit(self)
 
 
 class UMinus(Node):
