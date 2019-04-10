@@ -206,10 +206,14 @@ def p_values(p):
         p[0].addValue(p[1])
 
 
-def p_value(p):
-    '''value : number
-             | STRING '''
+def p_value_1(p):
+    '''value : number '''
     p[0] = p[1]
+
+
+def p_value_2(p):
+    '''value : STRING '''
+    p[0] = AST.String(p[1])
 
 
 def p_expression_binop(p):
@@ -242,6 +246,11 @@ def p_expression(p):
 def p_expression_2(p):
     '''expression : ID '''
     p[0] = AST.Variable(p[1])
+
+
+def p_expression_3(p):
+    '''expression : STRING '''
+    p[0] = AST.String(p[1])
 
 
 def p_number(p):

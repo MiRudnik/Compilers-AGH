@@ -16,6 +16,25 @@ for op in standard_ops + assign_ops:
     typ[op]['float']['int'] = 'float'
     typ[op]['float']['float'] = 'float'
     typ[op]['int']['int'] = 'int'
+    typ[op]['matrix']['matrix'] = 'matrix'
+
+for op in matrix_ops:
+    typ[op]['matrix']['matrix'] = 'matrix'
+
+for op in relation_ops:
+    typ[op]['int']['float'] = 'float'
+    typ[op]['float']['int'] = 'float'
+    typ[op]['float']['float'] = 'float'
+    typ[op]['int']['int'] = 'int'
+    typ[op]['matrix']['matrix'] = 'matrix'
+
+for op in standard_ops:
+    typ[op]['matrix']['float'] = 'matrix'
+    typ[op]['matrix']['int'] = 'matrix'
+    typ[op]['float']['matrix'] = 'matrix'
+    typ[op]['int']['float'] = 'matrix'
+
+
 
 
 class NodeVisitor(object):
