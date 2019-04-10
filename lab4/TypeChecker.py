@@ -32,9 +32,9 @@ for op in standard_ops:
     typ[op]['matrix']['float'] = 'matrix'
     typ[op]['matrix']['int'] = 'matrix'
     typ[op]['float']['matrix'] = 'matrix'
-    typ[op]['int']['float'] = 'matrix'
+    typ[op]['int']['matrix'] = 'matrix'
 
-
+typ['+']['string']['string'] = 'string'
 
 
 class NodeVisitor(object):
