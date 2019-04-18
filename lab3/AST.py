@@ -132,13 +132,12 @@ class Assign(Node):
 
 
 class Ref(Node):
-    def __init__(self, name, x, y):
+    def __init__(self, name, args):
         self.name = name
-        self.x = x
-        self.y = y
+        self.args = args
 
     def __repr__(self):
-        return '{}[{},{}]'.format(self.name, self.x, self.y)
+        return '{} {}'.format(self.name, self.args)
 
 
 class While(Node):

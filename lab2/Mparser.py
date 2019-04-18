@@ -95,12 +95,12 @@ def p_instruction_assign(p):
 
 
 def p_instruction_assign_array_element(p):
-    '''instruction_assign : ID '[' INT ',' INT ']' '=' assignable ';'
-                          | ID '[' INT ',' INT ']' A_ADD assignable ';'
-                          | ID '[' INT ',' INT ']' A_SUB assignable ';'
-                          | ID '[' INT ',' INT ']' A_MUL assignable ';'
-                          | ID '[' INT ',' INT ']' A_DIV assignable ';' '''
-    p[0] = AST.Assign(p[7], AST.Ref(AST.Variable(p[1]), AST.IntNum(p[3]), AST.IntNum(p[5])), p[8])
+    '''instruction_assign : ref '=' assignable ';'
+                          | ref A_ADD assignable ';'
+                          | ref A_SUB assignable ';'
+                          | ref A_MUL assignable ';'
+                          | ref A_DIV assignable ';' '''
+    p[0] = AST.Assign(p[2], p[1], p[3])
 
 
 def p_instruction_print(p):
@@ -145,8 +145,8 @@ def p_range(p):
 def p_assignable(p):
     '''assignable : relop
                   | expression
-                  | STRING
-                  | vector '''
+                  | vector
+                  | matrix '''
     p[0] = p[1]
 
 
@@ -161,59 +161,56 @@ def p_relop(p):
 
 
 def p_matrix_functions(p):
-    '''expression : ZEROS '(' INT ')'
-                  | ONES '(' INT ')'
-                  | EYE '(' INT ')' '''
-    p[0] = AST.MatrixFunc(p[1], AST.IntNum(p[3]))
+    '''expression : ZEROS '(' expression ')'
+                  | ONES '(' expression ')'
+                  | EYE '(' expression ')' '''
+    p[0] = AST.MatrixFunc(p[1], p[3])
 
 
-def p_vector(p):
-    '''vector :  '[' rows ']'
-              | '[' ']' '''
-    if len(p) == 4:
-        p[0] = AST.Vector(p[2])
+def p_reference(p):
+    '''ref : ID '[' INT ']'
+           | ID '[' INT ',' INT ']'
+           | ID '[' INT ',' INT ',' INT ']' '''
+    if len(p) == 5:
+        p[0] = AST.Ref(AST.Variable(p[1]), [AST.IntNum(p[3])])
+    elif len(p) == 7:
+        p[0] = AST.Ref(AST.Variable(p[1]), [AST.IntNum(p[3]), AST.IntNum(p[5])])
     else:
-        p[0] = AST.Vector([])
+        p[0] = AST.Ref(AST.Variable(p[1]), [AST.IntNum(p[3]), AST.IntNum(p[5]), AST.IntNum(p[7])])
 
 
-def p_rows_1(p):
-    '''rows : values
-           | values ';' rows '''
+def p_matrix(p):
+    '''matrix :  '[' matrix_values ']' '''
+    p[0] = p[2]
+
+
+def p_matrix_values(p):
+    '''matrix_values : vector
+                     | vector ',' matrix_values '''
     if len(p) == 2:
-        p[0] = [p[1]]
-    else:
-        p[0] = p[3]
-        p[0].append(p[1])
-
-
-def p_rows_2(p):
-    '''rows : vector
-            | vector ',' rows '''
-    if len(p) == 2:
-        p[0] = [p[1]]
-    else:
-        p[0] = p[3]
-        p[0].append(p[1])
-
-
-def p_values(p):
-    '''values : value
-              | value ',' values '''
-    if len(p) == 2:
-        p[0] = AST.Values([p[1]])
+        p[0] = AST.Vector([p[1]])
     else:
         p[0] = p[3]
         p[0].addValue(p[1])
 
 
-def p_value_1(p):
-    '''value : number '''
-    p[0] = p[1]
+def p_vector_1(p):
+    '''vector :  '[' vector_values ']'
+              | '[' ']' '''
+    if len(p) == 4:
+        p[0] = p[2]
+    else:
+        p[0] = AST.Vector([])
 
 
-def p_value_2(p):
-    '''value : STRING '''
-    p[0] = AST.String(p[1])
+def p_vector_values(p):
+    '''vector_values : const
+                     | const ',' vector_values '''
+    if len(p) == 2:
+        p[0] = AST.Vector([p[1]])
+    else:
+        p[0] = p[3]
+        p[0].addValue(p[1])
 
 
 def p_expression_binop(p):
@@ -238,8 +235,8 @@ def p_expr_uminus(p):
     p[0] = AST.UMinus(p[2])
 
 
-def p_expression(p):
-    '''expression : number'''
+def p_expression_1(p):
+    '''expression : const '''
     p[0] = p[1]
 
 
@@ -249,17 +246,22 @@ def p_expression_2(p):
 
 
 def p_expression_3(p):
-    '''expression : STRING '''
+    '''expression : ref '''
+    p[0] = p[1]
+
+
+def p_const_1(p):
+    '''const : STRING '''
     p[0] = AST.String(p[1])
 
 
-def p_number(p):
-    '''number : INT '''
+def p_const_2(p):
+    '''const : INT '''
     p[0] = AST.IntNum(p[1])
 
 
-def p_float(p):
-    '''number : FLOAT '''
+def p_const_3(p):
+    '''const : FLOAT '''
     p[0] = AST.FloatNum(p[1])
 
 

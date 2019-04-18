@@ -69,11 +69,6 @@ class TreePrinter:
         print("-")
         self.name.printTree(indent + 1)
 
-    @addToClass(AST.Values)
-    def printTree(self, indent=0):
-        for val in self.list:
-            val.printTree(indent)
-
     @addToClass(AST.Vector)
     def printTree(self, indent=0):
         for _i in range(indent):
@@ -111,8 +106,8 @@ class TreePrinter:
             print("|\t", end='')
         print("REF")
         self.name.printTree(indent + 1)
-        self.x.printTree(indent + 1)
-        self.y.printTree(indent + 1)
+        for item in self.args:
+            item.printTree(indent + 1)
 
     @addToClass(AST.While)
     def printTree(self, indent=0):
