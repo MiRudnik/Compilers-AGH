@@ -33,6 +33,12 @@ class TreePrinter:
             print("|    ", end='')
         print(self.value)
 
+    @addToClass(AST.String)
+    def printTree(self, indent=0):
+        for _i in range(indent):
+            print("|\t", end='')
+        print(self.value)
+
     @addToClass(AST.Variable)
     def printTree(self, indent=0):
         for _i in range(indent):
