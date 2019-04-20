@@ -168,15 +168,18 @@ def p_matrix_functions(p):
 
 
 def p_reference(p):
-    '''ref : ID '[' INT ']'
-           | ID '[' INT ',' INT ']'
-           | ID '[' INT ',' INT ',' INT ']' '''
-    if len(p) == 5:
-        p[0] = AST.Ref(AST.Variable(p[1]), [AST.IntNum(p[3])])
-    elif len(p) == 7:
-        p[0] = AST.Ref(AST.Variable(p[1]), [AST.IntNum(p[3]), AST.IntNum(p[5])])
+    '''ref : ID '[' ref_list ']' '''
+    p[0] = AST.Ref(AST.Variable(p[1]), p[3])
+
+
+def p_ref_list(p):
+    '''ref_list : ref_list ',' expression
+                | expression '''
+    if len(p) == 2:
+        p[0] = [p[1]]
     else:
-        p[0] = AST.Ref(AST.Variable(p[1]), [AST.IntNum(p[3]), AST.IntNum(p[5]), AST.IntNum(p[7])])
+        p[0] = p[1]
+        p[0].append(p[3])
 
 
 def p_matrix(p):
@@ -195,12 +198,8 @@ def p_matrix_values(p):
 
 
 def p_vector_1(p):
-    '''vector :  '[' vector_values ']'
-              | '[' ']' '''
-    if len(p) == 4:
-        p[0] = p[2]
-    else:
-        p[0] = AST.Vector([])
+    '''vector :  '[' vector_values ']' '''
+    p[0] = p[2]
 
 
 def p_vector_values(p):

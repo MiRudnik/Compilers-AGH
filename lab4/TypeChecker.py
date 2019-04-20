@@ -1,12 +1,9 @@
 from collections import defaultdict
 import lab3.AST as AST
+from lab4.SymbolTable import VariableSymbol, VectorSymbol
 
 
-def nested_dict():
-    return defaultdict(nested_dict)
-
-
-typ = nested_dict()
+typ = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: None)))
 standard_ops = ['+', '-', '*', '/']
 matrix_ops = ['.+', '.-', '.*', './']
 relation_ops = ['<', '>', '>=', '<=', '==', '!=']
@@ -17,25 +14,31 @@ for op in standard_ops + assign_ops:
     typ[op]['float']['int'] = 'float'
     typ[op]['float']['float'] = 'float'
     typ[op]['int']['int'] = 'int'
-    typ[op]['matrix']['matrix'] = 'matrix'
+    typ[op]['vector']['vector'] = 'vector'
 
 for op in matrix_ops:
-    typ[op]['matrix']['matrix'] = 'matrix'
+    typ[op]['vector']['vector'] = 'vector'
 
 for op in relation_ops:
     typ[op]['int']['float'] = 'float'
     typ[op]['float']['int'] = 'float'
     typ[op]['float']['float'] = 'float'
     typ[op]['int']['int'] = 'int'
-    typ[op]['matrix']['matrix'] = 'matrix'
+    typ[op]['vector']['vector'] = 'vector'
 
 for op in standard_ops:
-    typ[op]['matrix']['float'] = 'matrix'
-    typ[op]['matrix']['int'] = 'matrix'
-    typ[op]['float']['matrix'] = 'matrix'
-    typ[op]['int']['matrix'] = 'matrix'
+    typ[op]['vector']['float'] = 'vector'
+    typ[op]['vector']['int'] = 'vector'
+    typ[op]['float']['vector'] = 'vector'
+    typ[op]['int']['vector'] = 'vector'
 
 typ['+']['string']['string'] = 'string'
+
+
+class ErrorType:
+
+    def __str__(self):
+        return 'ErrorType'
 
 
 class NodeVisitor(object):
@@ -58,22 +61,10 @@ class NodeVisitor(object):
                 elif isinstance(child, AST.Node):
                     self.visit(child)
 
-    # simpler version of generic_visit, not so general
-    # def generic_visit(self, node):
-    #    for child in node.children:
-    #        self.visit(child)
-
 
 class TypeChecker(NodeVisitor):
 
-    def visit_BinExpr(self, node):
-        # alternative usage,
-        # requires definition of accept method in class Node
-        type1 = self.visit(node.left)  # type1 = node.left.accept(self)
-        type2 = self.visit(node.right)  # type2 = node.right.accept(self)
-        op = node.op
-        # ...
-        #
+    # TODO get line number to print somehow
 
     def visit_IntNum(self, node):
         return 'int'
@@ -81,5 +72,56 @@ class TypeChecker(NodeVisitor):
     def visit_FloatNum(self, node):
         return 'float'
 
-    def visit_String(selfself, node):
+    def visit_String(self, node):
         return 'string'
+
+    def visit_Vector(self, node):
+        contents = node.elements
+        initial_type = type(contents[0])
+        if initial_type == AST.Vector:
+            # 2 dimensions
+            if all(len(x) == len(contents[0]) for x in contents):
+                initial_type = type(contents[0][0])
+                if all(all(type(x) == initial_type for x in vector) for vector in contents):
+                    return VectorSymbol(2, [len(contents[0]), len(contents)], initial_type)
+                else:
+                    print("[Semantic Error] Incorrect vector types!")
+                    return ErrorType()
+            else:
+                print("[Semantic Error] Incorrect vector sizes!")
+                return ErrorType()
+        else:
+            # 1 dimension
+            if all(type(x) == initial_type for x in contents):
+                return VectorSymbol(1, [len(contents)], initial_type)
+            else:
+                print("[Semantic Error] Incorrect vector types!")
+                return ErrorType()
+
+    def visit_BinExpr(self, node):
+        type1 = self.visit(node.left)
+        type2 = self.visit(node.right)
+        operand = node.op
+        if type1 == ErrorType or type2 == ErrorType:
+            return ErrorType()
+        result_type = typ[operand][type1][type2]
+        if result_type is not None:
+            return result_type
+        else:
+            print("[Semantic Error] Incorrect types of operands!")
+            return ErrorType()
+
+    def visit_RelExpr(self, node):
+        type1 = self.visit(node.left)
+        type2 = self.visit(node.right)
+        operand = node.op
+        if type1 == ErrorType or type2 == ErrorType:
+            return ErrorType()
+        result_type = typ[operand][type1][type2]
+        if result_type is not None:
+            return result_type
+        else:
+            print("[Semantic Error] Incorrect types of operands!")
+            return ErrorType()
+
+    # TODO finish

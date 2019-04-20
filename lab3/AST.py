@@ -95,17 +95,6 @@ class Vector(Node):
         self.elements.append(value)
 
 
-class Rows(Node):
-    def __init__(self, list):
-        self.list = list
-
-    def __repr__(self):
-        return '{}'.format(self.list)
-
-    def addValue(self, value):
-        self.list.append(value)
-
-
 class MatrixFunc(Node):
     def __init__(self, func, value):
         self.func = func
