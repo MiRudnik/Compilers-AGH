@@ -61,9 +61,6 @@ class Transpose(Node):
     def __repr__(self):
         return 'TRANSPOSE {}'.format(self.name)
 
-    def accept(self, visitor):
-        visitor.visit(self)
-
 
 class UMinus(Node):
     def __init__(self, name):
@@ -71,17 +68,6 @@ class UMinus(Node):
 
     def __repr__(self):
         return '- {}'.format(self.name)
-
-
-class Values(Node):
-    def __init__(self, list):
-        self.list = list
-
-    def __repr__(self):
-        return '{}'.format(self.list)
-
-    def addValue(self, value):
-        self.list.append(value)
 
 
 class Vector(Node):

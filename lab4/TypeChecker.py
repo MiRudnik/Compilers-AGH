@@ -1,6 +1,6 @@
 from collections import defaultdict
 import lab3.AST as AST
-from lab4.SymbolTable import VariableSymbol, VectorSymbol
+from lab4.SymbolTable import SymbolTable, VariableSymbol, VectorSymbol
 
 
 typ = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: None)))
@@ -34,6 +34,8 @@ for op in standard_ops:
 
 typ['+']['string']['string'] = 'string'
 
+range_types = ['int', 'float']
+
 
 class ErrorType:
 
@@ -65,6 +67,17 @@ class NodeVisitor(object):
 class TypeChecker(NodeVisitor):
 
     # TODO get line number to print somehow
+
+    def __init__(self):
+        self.symbol_table = SymbolTable(None, 'main')
+        self.nesting = 0
+
+    def visit_Variable(self, node):
+        variable_type = self.symbol_table.get(node.name)
+        if variable_type is None:
+            print("[Semantic Error] Unknown variable!")
+            return ErrorType()
+        return variable_type.type
 
     def visit_IntNum(self, node):
         return 'int'
@@ -123,5 +136,109 @@ class TypeChecker(NodeVisitor):
         else:
             print("[Semantic Error] Incorrect types of operands!")
             return ErrorType()
+
+    def visit_MatrixFunc(self, node):
+        if not isinstance(node.value, AST.IntNum):
+            print("[Semantic Error] Incorrect argument for matrix function!")
+            return ErrorType()
+
+    def visit_Range(self, node):
+        type = self.visit(node.left)
+        if type == ErrorType or type not in range_types:
+            print("[Semantic Error] Incorrect range expression type!")
+            return ErrorType()
+        type = self.visit(node.right)
+        if type == ErrorType or type not in range_types:
+            print("[Semantic Error] Incorrect range expression type!")
+            return ErrorType()
+        return type
+
+    def visit_Assign(self, node):
+        type2 = self.visit(node.right)
+        operand = node.op
+        if type2 == ErrorType:
+            return ErrorType()
+        if operand == '=':
+            self.symbol_table.put(node.left.name, VariableSymbol(node.left.name, type2))
+            node.left = node.right
+        if operand in assign_ops:
+            type1 = self.visit(node.left)
+            result_type = typ[operand][type1.type][type2]
+            if result_type is not None:
+                return result_type
+            else:
+                print("[Semantic Error] Incorrect types of operands!")
+                return ErrorType()
+        else:
+            if isinstance(node.left, AST.Variable):
+                self.symbol_table.put(node.left.name, VariableSymbol(node.left.name, type2))
+                type1 = self.visit(node.left)
+                result_type = typ[operand][type1][type2]
+                if result_type is not None:
+                    return result_type
+                else:
+                    print("[Semantic Error] Incorrect types of operands!")
+                    return ErrorType()
+
+    def visit_Ref(self, node):
+        self.visit(node.name) # TODO proper service
+        self.visit(node.args)
+
+    def visit_While(self, node):
+        self.nesting += 1
+        self.symbol_table = self.symbol_table.pushScope('while')
+        self.visit(node.assignable)
+        self.visit(node.instruction)
+        self.symbol_table = self.symbol_table.popScope()
+        self.nesting -= 1
+
+    def visit_For(self, node):
+        self.nesting += 1
+        self.symbol_table = self.symbol_table.pushScope('for')
+        type = self.visit(node.range)
+        self.symbol_table.put(node.name, VariableSymbol(node.name, type))
+        self.visit(node.instruction)
+        self.symbol_table = self.symbol_table.popScope()
+        self.nesting -= 1
+
+    def visit_If(self, node):
+        self.visit(node.condition)
+        self.symbol_table.pushScope('if')
+        self.visit(node.if_expression)
+        self.symbol_table.popScope()
+        if node.else_expression is not None:
+            self.symbol_table.pushScope('else')
+            self.visit(node.else_expression)
+            self.symbol_table.popScope()
+
+    def visit_Break(self, node):
+        if self.nesting <= 0:
+            print("[Semantic Error] Break outside loop statement!")
+            return ErrorType()
+        return None
+
+    def visit_Continue(self, node):
+        if self.nesting <= 0:
+            print("[Semantic Error] Continue outside loop statement!")
+            return ErrorType()
+        return None
+
+    def visit_Print(self, node):
+        self.visit(node.content)
+
+    def visit_Return(self, node):
+        type = self.visit(node.content)
+        return type
+
+    def visit_Args(self, node):
+        for arg in node.list:
+            self.visit(arg)
+
+    def visit_Instructions(self, node):
+        for instruction in node.list:
+            self.visit(instruction)
+
+    def visit_Program(self, node):
+        self.visit(node.instructions)
 
     # TODO finish
