@@ -33,6 +33,11 @@ for op in relation_ops:
 
 typ['+']['string']['string'] = 'string'
 
+typ['\'']['vector'][None] = 'matrix'
+typ['-']['vector'][None] = 'matrix'
+typ['-']['int'][None] = 'int'
+typ['-']['float'][None] = 'float'
+
 range_types = ['int', 'float']
 
 
@@ -107,6 +112,28 @@ class TypeChecker(NodeVisitor):
             else:
                 print("[Semantic Error at line {}] Incorrect vector types!".format(node.line))
                 return ErrorType()
+
+    def visit_Transpose(self, node):
+        var_type = self.visit(node.name)
+        result_type = typ['\''][str(var_type)][None]
+        if result_type is not None:
+            if var_type.dims != 2:
+                print("[Semantic Error at line {}] Transpose only for matrices!".format(node.line))
+                return ErrorType()
+            var_type.sizes.reverse()
+            return result_type
+        else:
+            print("[Semantic Error at line {}] Incorrect type for transpose!".format(node.line))
+            return ErrorType()
+
+    def visit_UMinus(self, node):
+        var_type = self.visit(node.name)
+        result_type = typ['-'][str(var_type)][None]
+        if result_type is not None:
+            return result_type
+        else:
+            print("[Semantic Error at line {}] Incorrect type for uminus!".format(node.line))
+            return ErrorType()
 
     def visit_BinExpr(self, node):
         type1 = self.visit(node.left)
