@@ -1,9 +1,9 @@
 import sys
 import ply.yacc as yacc
-from Mparser import Mparser
-from TreePrinter import TreePrinter
-from TypeChecker import TypeChecker
-from Interpreter import Interpreter
+import lab2.Mparser as Mparser
+import lab3.TreePrinter as TreePrinter
+from lab4.TypeChecker import TypeChecker
+from lab5.Interpreter import Interpreter
 
 
 if __name__ == '__main__':
