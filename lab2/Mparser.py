@@ -185,6 +185,7 @@ def p_expr_list(p):
 def p_matrix(p):
     '''matrix :  '[' matrix_values ']' '''
     p[0] = p[2]
+    p[0].line = p.lineno(1)
 
 
 def p_matrix_values(p):
@@ -200,6 +201,7 @@ def p_matrix_values(p):
 def p_vector_1(p):
     '''vector :  '[' vector_values ']' '''
     p[0] = p[2]
+    p[0].line = p.lineno(1)
 
 
 def p_vector_values(p):

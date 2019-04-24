@@ -12,7 +12,7 @@ class VariableSymbol(Symbol):
         return str(self.type)
 
 
-class VectorSymbol(Symbol):
+class VectorType(object):
 
     def __init__(self, dims, sizes, type):
         self.dims = dims
