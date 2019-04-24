@@ -235,7 +235,7 @@ class TypeChecker(NodeVisitor):
                 if var_type.dims != 1:
                     print("[Semantic Error at line {}] Vector has different dimensions!".format(node.line))
                     return ErrorType()
-                if value >= var_type.sizes[0]:
+                if value >= var_type.sizes[0] or value < 0:
                     print("[Semantic Error at line {}] Index out of bounds!".format(node.line))
                     return ErrorType()
                 return var_type.type
@@ -312,5 +312,3 @@ class TypeChecker(NodeVisitor):
 
     def visit_Program(self, node):
         self.visit(node.instructions)
-
-    # TODO finish
