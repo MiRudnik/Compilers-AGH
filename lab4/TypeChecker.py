@@ -33,8 +33,8 @@ for op in relation_ops:
 
 typ['+']['string']['string'] = 'string'
 
-typ['\'']['vector'][None] = 'matrix'
-typ['-']['vector'][None] = 'matrix'
+typ['\'']['vector'][None] = 'vector'
+typ['-']['vector'][None] = 'vector'
 typ['-']['int'][None] = 'int'
 typ['-']['float'][None] = 'float'
 
