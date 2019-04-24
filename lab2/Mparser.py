@@ -139,7 +139,7 @@ def p_args(p):
 
 def p_range(p):
     '''range : expression ':' expression '''
-    p[0] = AST.Range(p[1], p[3], p.lineno(1))
+    p[0] = AST.Range(p[1], p[3], p.lineno(2))
 
 
 def p_assignable(p):
