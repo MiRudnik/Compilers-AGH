@@ -1,10 +1,10 @@
-x=0;
-
 continue;
 
 return x;
 
 break;
+
+x = 1;
 
 return x+1;
 

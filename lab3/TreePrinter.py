@@ -88,7 +88,8 @@ class TreePrinter:
         for _i in range(indent):
             print("|    ", end='')
         print(self.func)
-        self.value.printTree(indent + 1)
+        for arg in self.args:
+            arg.printTree(indent + 1)
 
     @addToClass(AST.Range)
     def printTree(self, indent=0):

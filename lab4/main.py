@@ -20,5 +20,6 @@ if __name__ == '__main__':
     ast = parser.parse(text, lexer=Mparser.scanner.lexer)
 
     # Below code shows how to use visitor
-    typeChecker = TypeChecker()
-    typeChecker.visit(ast)  # or alternatively ast.accept(typeChecker)
+    if not Mparser.has_errors:
+        typeChecker = TypeChecker()
+        typeChecker.visit(ast)  # or alternatively ast.accept(typeChecker)

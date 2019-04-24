@@ -24,7 +24,6 @@ for op in relation_ops:
     typ[op]['float']['int'] = 'float'
     typ[op]['float']['float'] = 'float'
     typ[op]['int']['int'] = 'int'
-    typ[op]['vector']['vector'] = 'vector'
 
 for op in standard_ops:
     typ[op]['vector']['float'] = 'vector'
@@ -75,7 +74,7 @@ class TypeChecker(NodeVisitor):
     def visit_Variable(self, node):
         variable_type = self.symbol_table.get(node.name)
         if variable_type is None:
-            print("[Semantic Error] Unknown variable!")
+            print("[Semantic Error at line {}] Unknown variable!".format(node.line))
             return ErrorType()
         return variable_type.type
 
@@ -93,91 +92,105 @@ class TypeChecker(NodeVisitor):
         initial_type = type(contents[0])
         if initial_type == AST.Vector:
             # 2 dimensions
-            if all(len(x) == len(contents[0]) for x in contents):
-                initial_type = type(contents[0][0])
-                if all(all(type(x) == initial_type for x in vector) for vector in contents):
-                    return VectorSymbol(2, [len(contents[0]), len(contents)], initial_type)
+            if all(len(vector.elements) == len(contents[0].elements) for vector in contents):
+                initial_type = type(contents[0].elements[0])
+                if all(all(type(x) == initial_type for x in vector.elements) for vector in contents):
+                    return VectorSymbol(2, [len(contents[0].elements), len(contents)], initial_type)
                 else:
-                    print("[Semantic Error] Incorrect vector types!")
+                    print("[Semantic Error at line {}] Incorrect vector types!".format(node.line))
                     return ErrorType()
             else:
-                print("[Semantic Error] Incorrect vector sizes!")
+                print("[Semantic Error at line {}] Incorrect vector sizes!".format(node.line))
                 return ErrorType()
         else:
             # 1 dimension
             if all(type(x) == initial_type for x in contents):
                 return VectorSymbol(1, [len(contents)], initial_type)
             else:
-                print("[Semantic Error] Incorrect vector types!")
+                print("[Semantic Error at line {}] Incorrect vector types!".format(node.line))
                 return ErrorType()
 
     def visit_BinExpr(self, node):
         type1 = self.visit(node.left)
         type2 = self.visit(node.right)
         operand = node.op
-        if type1 == ErrorType or type2 == ErrorType:
+        if isinstance(type1, ErrorType) or isinstance(type2, ErrorType):
             return ErrorType()
-        result_type = typ[operand][type1][type2]
+        if isinstance(type1, VectorSymbol) and isinstance(type2, VectorSymbol):
+            if type1.dims != type2.dims or type1.sizes != type2.sizes:
+                print("[Semantic Error at line {}] Different sizes of operands!".format(node.line))
+                return ErrorType()
+        result_type = typ[operand][str(type1)][str(type2)]
         if result_type is not None:
             return result_type
         else:
-            print("[Semantic Error] Incorrect types of operands!")
+            print("[Semantic Error at line {}] Incorrect types of operands!".format(node.line))
             return ErrorType()
 
     def visit_RelExpr(self, node):
         type1 = self.visit(node.left)
         type2 = self.visit(node.right)
         operand = node.op
-        if type1 == ErrorType or type2 == ErrorType:
+        if isinstance(type1, ErrorType) or isinstance(type2, ErrorType):
             return ErrorType()
-        result_type = typ[operand][type1][type2]
+        result_type = typ[operand][str(type1)][str(type2)]
         if result_type is not None:
             return result_type
         else:
-            print("[Semantic Error] Incorrect types of operands!")
+            print("[Semantic Error at line {}] Incorrect types of operands!".format(node.line))
             return ErrorType()
 
     def visit_MatrixFunc(self, node):
-        if not isinstance(node.value, AST.IntNum):
-            print("[Semantic Error] Incorrect argument for matrix function!")
+        if len(node.args) != 1:
+            print("[Semantic Error at line {}] Function takes only one parameter!".format(node.line))
+            return ErrorType()
+        type = self.visit(node.args[0])
+        if type == 'int':
+            value = 3   # we cant evaluate expressions while only checking types
+            if isinstance(node.args[0], AST.IntNum):
+                value = node.args[0].value
+            return VectorSymbol(1, value, 'int')
+
+        else:
+            print("[Semantic Error at line {}] Supporting only integers in matrix functions!".format(node.line))
             return ErrorType()
 
     def visit_Range(self, node):
         type = self.visit(node.left)
-        if type == ErrorType or type not in range_types:
-            print("[Semantic Error] Incorrect range expression type!")
+        if isinstance(type, ErrorType) or type not in range_types:
+            print("[Semantic Error at line {}] Incorrect range expression type!".format(node.line))
             return ErrorType()
         type = self.visit(node.right)
-        if type == ErrorType or type not in range_types:
-            print("[Semantic Error] Incorrect range expression type!")
+        if isinstance(type, ErrorType) or type not in range_types:
+            print("[Semantic Error at line {}] Incorrect range expression type!".format(node.line))
             return ErrorType()
         return type
 
     def visit_Assign(self, node):
         type2 = self.visit(node.right)
         operand = node.op
-        if type2 == ErrorType:
+        if isinstance(type2, ErrorType):
             return ErrorType()
         if operand == '=':
             self.symbol_table.put(node.left.name, VariableSymbol(node.left.name, type2))
             node.left = node.right
         if operand in assign_ops:
             type1 = self.visit(node.left)
-            result_type = typ[operand][type1.type][type2]
+            result_type = typ[operand][str(type1)][str(type2)]
             if result_type is not None:
                 return result_type
             else:
-                print("[Semantic Error] Incorrect types of operands!")
+                print("[Semantic Error at line {}] Incorrect types of operands!".format(node.line))
                 return ErrorType()
         else:
             if isinstance(node.left, AST.Variable):
                 self.symbol_table.put(node.left.name, VariableSymbol(node.left.name, type2))
                 type1 = self.visit(node.left)
-                result_type = typ[operand][type1][type2]
+                result_type = typ[operand][str(type1)][str(type2)]
                 if result_type is not None:
                     return result_type
                 else:
-                    print("[Semantic Error] Incorrect types of operands!")
+                    print("[Semantic Error at line {}] Incorrect types of operands!".format(node.line))
                     return ErrorType()
 
     def visit_Ref(self, node):
@@ -213,22 +226,18 @@ class TypeChecker(NodeVisitor):
 
     def visit_Break(self, node):
         if self.nesting <= 0:
-            print("[Semantic Error] Break outside loop statement!")
-            return ErrorType()
-        return None
+            print("[Semantic Error at line {}] Break outside loop statement!".format(node.line))
 
     def visit_Continue(self, node):
         if self.nesting <= 0:
-            print("[Semantic Error] Continue outside loop statement!")
-            return ErrorType()
-        return None
+            print("[Semantic Error at line {}] Continue outside loop statement!".format(node.line))
 
     def visit_Print(self, node):
         self.visit(node.content)
 
     def visit_Return(self, node):
-        type = self.visit(node.content)
-        return type
+        if node.content is not None:
+            self.visit(node.content)
 
     def visit_Args(self, node):
         for arg in node.list:

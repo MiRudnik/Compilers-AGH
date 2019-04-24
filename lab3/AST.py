@@ -3,76 +3,85 @@ class Node(object):
 
 
 class IntNum(Node):
-    def __init__(self, value):
+    def __init__(self, value, line):
         self.value = value
+        self.line = line
 
     def __repr__(self):
         return '{}'.format(self.value)
 
 
 class FloatNum(Node):
-    def __init__(self, value):
+    def __init__(self, value, line):
         self.value = value
+        self.line = line
 
     def __repr__(self):
         return '{}'.format(self.value)
 
 
 class String(Node):
-    def __init__(self, value):
+    def __init__(self, value, line):
         self.value = value
+        self.line = line
 
     def __repr__(self):
         return '{}'.format(self.value)
 
 
 class Variable(Node):
-    def __init__(self, name):
+    def __init__(self, name, line):
         self.name = name
+        self.line = line
 
     def __repr__(self):
         return '{}'.format(self.name)
 
 
 class BinExpr(Node):
-    def __init__(self, op, left, right):
+    def __init__(self, op, left, right, line):
         self.op = op
         self.left = left
         self.right = right
+        self.line = line
 
     def __repr__(self):
         return '{} {} {}'.format(self.left, self.op, self.right)
 
 
 class RelExpr(Node):
-    def __init__(self, op, left, right):
+    def __init__(self, op, left, right, line):
         self.op = op
         self.left = left
         self.right = right
+        self.line = line
 
     def __repr__(self):
         return '{} {} {}'.format(self.left, self.op, self.right)
 
 
 class Transpose(Node):
-    def __init__(self, name):
+    def __init__(self, name, line):
         self.name = name
+        self.line = line
 
     def __repr__(self):
         return 'TRANSPOSE {}'.format(self.name)
 
 
 class UMinus(Node):
-    def __init__(self, name):
+    def __init__(self, name, line):
         self.name = name
+        self.line = line
 
     def __repr__(self):
         return '- {}'.format(self.name)
 
 
 class Vector(Node):
-    def __init__(self, elements):
+    def __init__(self, elements, line):
         self.elements = elements
+        self.line = line
 
     def __repr__(self):
         return '{}'.format(self.elements)
@@ -82,63 +91,70 @@ class Vector(Node):
 
 
 class MatrixFunc(Node):
-    def __init__(self, func, value):
+    def __init__(self, func, args, line):
         self.func = func
-        self.value = value
+        self.args = args
+        self.line = line
 
 
 class Range(Node):
-    def __init__(self, left, right):
+    def __init__(self, left, right, line):
         self.left = left
         self.right = right
+        self.line = line
 
     def __repr__(self):
         return '{}:{}'.format(self.left, self.right)
 
 
 class Assign(Node):
-    def __init__(self, op, left, right):
+    def __init__(self, op, left, right, line):
         self.op = op
         self.left = left
         self.right = right
+        self.line = line
 
     def __repr__(self):
         return '{} {} {}'.format(self.left, self.op, self.right)
 
 
 class Ref(Node):
-    def __init__(self, name, args):
+    def __init__(self, name, args, line):
         self.name = name
         self.args = args
+        self.line = line
 
     def __repr__(self):
         return '{} {}'.format(self.name, self.args)
 
 
 class While(Node):
-    def __init__(self, assignable, instruction):
+    def __init__(self, assignable, instruction, line):
         self.assignable = assignable
         self.instruction = instruction
+        self.line = line
 
     def __repr__(self):
         return 'WHILE {} DO {}'.format(self.assignable, self.instruction)
 
 
 class For(Node):
-    def __init__(self, name, range, instruction):
+    def __init__(self, name, range, instruction, line):
         self.name = name
         self.range = range
         self.instruction = instruction
+        self.line = line
 
     def __repr__(self):
         return 'FOR {} IN {} DO {}'.format(self.name, self.range, self.instruction)
 
 
 class If(Node):
-    def __init__(self, condition, if_expression, else_expression=None):
+    def __init__(self, condition, if_expression, line, else_expression=None):
         self.condition = condition
         self.if_expression = if_expression
         self.else_expression = else_expression
+        self.line = line
 
     def __repr__(self):
         basic = 'IF {} THEN {}'.format(self.condition, self.if_expression)
@@ -152,32 +168,36 @@ class Error(Node):
 
 
 class Break(Node):
-    def __init__(self):
+    def __init__(self, line):
         self.name = 'BREAK'
+        self.line = line
 
     def __repr__(self):
         return self.name
 
 
 class Continue(Node):
-    def __init__(self):
+    def __init__(self, line):
         self.name = 'CONTINUE'
+        self.line = line
 
     def __repr__(self):
         return self.name
 
 
 class Print(Node):
-    def __init__(self, content):
+    def __init__(self, content, line):
         self.content = content
+        self.line = line
 
     def __repr__(self):
         return 'PRINT {}'.format(self.content)
 
 
 class Return(Node):
-    def __init__(self, content=None):
+    def __init__(self, line, content=None):
         self.content = content
+        self.line = line
 
     def __repr__(self):
         return 'RETURN {}'.format(self.content) if self.content else 'RETURN'
