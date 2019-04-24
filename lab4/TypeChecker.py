@@ -65,8 +65,6 @@ class NodeVisitor(object):
 
 class TypeChecker(NodeVisitor):
 
-    # TODO get line number to print somehow
-
     def __init__(self):
         self.symbol_table = SymbolTable(None, 'main')
         self.nesting = 0
@@ -153,7 +151,6 @@ class TypeChecker(NodeVisitor):
             if isinstance(node.args[0], AST.IntNum):
                 value = node.args[0].value
             return VectorType(2, [value, value], 'int')
-
         else:
             print("[Semantic Error at line {}] Supporting only integers in matrix functions!".format(node.line))
             return ErrorType()
@@ -194,8 +191,47 @@ class TypeChecker(NodeVisitor):
                 return ErrorType()
 
     def visit_Ref(self, node):
-        self.visit(node.name) # TODO proper service
-        self.visit(node.args)
+        if len(node.args) > 2:
+            print("[Semantic Error at line {}] Too many dimensions provided!".format(node.line))
+            return ErrorType()
+        var_type = self.visit(node.name)
+        if str(var_type) != 'vector':
+            print("[Semantic Error at line {}] Variable not a vector!".format(node.line))
+            return ErrorType()
+        types = [self.visit(x) for x in node.args]
+        if len(types) == 1:
+            # vector
+            if types == ['int']:
+                value = 0  # we cant evaluate expressions while only checking types
+                if isinstance(node.args[0], AST.IntNum):
+                    value = node.args[0].value
+                if var_type.dims != 1:
+                    print("[Semantic Error at line {}] Vector has different dimensions!".format(node.line))
+                    return ErrorType()
+                if value >= var_type.sizes[0]:
+                    print("[Semantic Error at line {}] Index out of bounds!".format(node.line))
+                    return ErrorType()
+                return var_type.type
+            else:
+                print("[Semantic Error at line {}] Reference only supports integer parameters!".format(node.line))
+                return ErrorType()
+        else:
+            # matrix
+            if types == ['int', 'int']:
+                value = [0, 0]  # we cant evaluate expressions while only checking types
+                if isinstance(node.args[0], AST.IntNum) and isinstance(node.args[1], AST.IntNum):
+                    value[0] = node.args[0].value
+                    value[1] = node.args[1].value
+                if var_type.dims != 2:
+                    print("[Semantic Error at line {}] Vector has different dimensions!".format(node.line))
+                    return ErrorType()
+                if value[0] >= var_type.sizes[0] or value[1] >= var_type.sizes[1]:
+                    print("[Semantic Error at line {}] Index out of bounds!".format(node.line))
+                    return ErrorType()
+                return var_type.type
+            else:
+                print("[Semantic Error at line {}] Reference only supports integer parameters!".format(node.line))
+                return ErrorType()
 
     def visit_While(self, node):
         self.nesting += 1
