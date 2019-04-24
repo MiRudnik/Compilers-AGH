@@ -48,6 +48,9 @@ class BinExpr(Node):
     def __repr__(self):
         return '{} {} {}'.format(self.left, self.op, self.right)
 
+    def accept(self, visitor):
+        visitor.visit(self)
+
 
 class RelExpr(Node):
     def __init__(self, op, left, right, line):
@@ -224,6 +227,9 @@ class Instructions(Node):
     def addInstruction(self, value):
         self.list.append(value)
 
+    def accept(self, visitor):
+        visitor.visit(self)
+
 
 class Program(Node):
     def __init__(self, instructions=None):
@@ -231,3 +237,6 @@ class Program(Node):
 
     def __repr__(self):
         return '{}'.format(self.instructions) if self.instructions else ''
+
+    def accept(self, visitor):
+        visitor.visit(self)

@@ -290,25 +290,30 @@ class TypeChecker(NodeVisitor):
     def visit_Break(self, node):
         if self.nesting <= 0:
             print("[Semantic Error at line {}] Break outside loop statement!".format(node.line))
+            return ErrorType()
 
     def visit_Continue(self, node):
         if self.nesting <= 0:
             print("[Semantic Error at line {}] Continue outside loop statement!".format(node.line))
+            return ErrorType()
 
     def visit_Print(self, node):
         self.visit(node.content)
 
     def visit_Return(self, node):
         if node.content is not None:
-            self.visit(node.content)
+            return self.visit(node.content)
 
     def visit_Args(self, node):
         for arg in node.list:
             self.visit(arg)
 
     def visit_Instructions(self, node):
+        type = None
         for instruction in node.list:
-            self.visit(instruction)
+            type = self.visit(instruction)
+        if isinstance(type, ErrorType):
+            return type
 
     def visit_Program(self, node):
-        self.visit(node.instructions)
+        return self.visit(node.instructions)

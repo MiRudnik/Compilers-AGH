@@ -22,6 +22,8 @@ class Interpreter(object):
         # if(node.op=='+') return r1+r2
         # elsif(node.op=='-') ...
         # but do not use python eval
+        #
+        # maybe use list comprehension to use proper operator
 
     @when(AST.Assign)
     def visit(self, node):
@@ -34,3 +36,13 @@ class Interpreter(object):
         while node.cond.accept(self):
             r = node.body.accept(self)
         return r
+
+    @when(AST.Instructions)
+    def visit(self, node):
+        for instruction in node.list:
+            instruction.accept(self)
+
+    @when(AST.Program)
+    def visit(self, node):
+        node.instructions.accept(self)
+
