@@ -1,5 +1,6 @@
 class Node(object):
-    pass
+    def accept(self, visitor):
+        return visitor.visit(self)
 
 
 class IntNum(Node):
@@ -47,9 +48,6 @@ class BinExpr(Node):
 
     def __repr__(self):
         return '{} {} {}'.format(self.left, self.op, self.right)
-
-    def accept(self, visitor):
-        visitor.visit(self)
 
 
 class RelExpr(Node):

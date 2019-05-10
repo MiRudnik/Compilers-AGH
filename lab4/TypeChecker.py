@@ -200,7 +200,6 @@ class TypeChecker(NodeVisitor):
             return ErrorType()
         if operand == '=':
             self.symbol_table.put(node.left.name, VariableSymbol(node.left.name, type2))
-            node.left = node.right
         if operand in assign_ops:
             type1 = self.visit(node.left)
             result_type = typ[operand][str(type1)][str(type2)]
@@ -309,11 +308,12 @@ class TypeChecker(NodeVisitor):
             self.visit(arg)
 
     def visit_Instructions(self, node):
-        type = None
+        errorType = None
         for instruction in node.list:
             type = self.visit(instruction)
-        if isinstance(type, ErrorType):
-            return type
+            if isinstance(type, ErrorType):
+                errorType = type
+        return errorType
 
     def visit_Program(self, node):
         return self.visit(node.instructions)

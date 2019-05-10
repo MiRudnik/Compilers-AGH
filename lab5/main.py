@@ -24,7 +24,7 @@ if __name__ == '__main__':
     typeChecker = TypeChecker()
     result = typeChecker.visit(ast)   # or alternatively ast.accept(typeChecker)
 
-    if result is None:
+    if result is None and not Mparser.has_errors:
         ast.accept(Interpreter())
         # in future
         # ast.accept(OptimizationPass1())
