@@ -4,6 +4,7 @@ from lab5.Memory import *
 from lab5.Exceptions import  *
 from lab5.visit import *
 import sys
+import numpy
 
 sys.setrecursionlimit(10000)
 
@@ -18,7 +19,21 @@ binExprOp = {
     "/=": (lambda x, y: x / y),
 }
 
-matrixExprOp = {}
+matrixExprOp = {
+    '+': (lambda x, y: (numpy.matrix(x) + numpy.matrix(y)).tolist()),
+    '+=': (lambda x, y: (numpy.matrix(x) + numpy.matrix(y)).tolist()),
+    '.+': (lambda x, y: (numpy.matrix(x) + numpy.matrix(y)).tolist()),
+    '-': (lambda x, y: (numpy.matrix(x) - numpy.matrix(y)).tolist()),
+    '-=': (lambda x, y: (numpy.matrix(x) - numpy.matrix(y)).tolist()),
+    '.-': (lambda x, y: (numpy.matrix(x) - numpy.matrix(y)).tolist()),
+    '*': (lambda x, y: numpy.array(numpy.matmul(x, y)).tolist()),
+    '*=': (lambda x, y: numpy.array(numpy.matmul(x, y)).tolist()),
+    '.*': (lambda x, y: numpy.multiply(numpy.array(x), numpy.array(y)).tolist()),
+    '/': (lambda x, y: numpy.array(numpy.matmul(numpy.matrix(x), numpy.linalg.inv(y))).tolist()),
+    '/=': (lambda x, y: numpy.array(numpy.matmul(numpy.matrix(x), numpy.linalg.inv(y))).tolist()),
+    './': (lambda x, y: numpy.divide(numpy.array(x), numpy.array(y)).tolist()),
+}
+
 
 relExprOp = {
     "==": (lambda x, y: x == y),
@@ -70,16 +85,40 @@ class Interpreter(object):
 
         return relExprOp[node.op](r1, r2)
 
+    @when(AST.Transpose)
+    def visit(self, node):
+        matrix = numpy.array(self.memoryStack.get(node.name.name))
+        matrix.transpose()
+        return matrix
+
+    @when(AST.UMinus)
+    def visit(self, node):
+        return - node.name.accept(self)
+
     @when(AST.Vector)
     def visit(self, node):
         return [element.accept(self) for element in node.elements]
+
+    @when(AST.MatrixFunc)
+    def visit(self, node):
+        arg = node.args[0].accept(self)
+
+        if node.func == "zeros":
+            return [[0 for x in range(arg)] for y in range(arg)]
+        elif node.func == "ones":
+            return [[1 for x in range(arg)] for y in range(arg)]
+        elif node.func == "eye":
+            eye = [[0 for x in range(arg)] for y in range(arg)]
+            for i in range(0, arg):
+                eye[i][i] = 1
+            return eye
 
     @when(AST.Range)
     def visit(self, node):
         left = node.left.accept(self)
         right = node.right.accept(self)
 
-        return (left, right)
+        return left, right
 
     @when(AST.Assign)
     def visit(self, node):
@@ -110,7 +149,7 @@ class Interpreter(object):
                 if type(left) is not list and type(right) is not list:
                     result = binExprOp[node.op](left, right)
                 elif type(left) is list and type(right) is list:
-                    result = matrix[node.op](left, right)
+                    result = matrixExprOp[node.op](left, right)
 
                 self.memoryStack.set(node.left.name, result)
             elif isinstance(node.left, AST.Ref):
@@ -122,6 +161,19 @@ class Interpreter(object):
                     left = matrix[args[0]]
                 elif len(args) == 2:
                     left = matrix[args[0]][args[1]]
+
+                result = None
+
+                if type(left) is not list and type(right) is not list:
+                    result = binExprOp[node.op](left, right)
+
+                if len(args) == 1:
+                    arg = args[0].accept(self)
+                    matrix[arg] = result
+                elif len(args) == 2:
+                    leftArg = args[0].accept(self)
+                    rightArg = args[1].accept(self)
+                    matrix[leftArg][rightArg] = result
 
     @when(AST.Ref)
     def visit(self, node):
@@ -142,6 +194,26 @@ class Interpreter(object):
                 break
             except ContinueException:
                 pass
+
+    @when(AST.For)
+    def visit(self, node):
+        range = node.range.accept(self)
+
+        if self.memoryStack.get(node.variable.name) is None:
+            self.memoryStack.insert(node.variable.name, range[0])
+        else:
+            self.memoryStack.set(node.variable.name, range[0])
+
+        while self.memoryStack.get(node.variable.name) <= range[1]:
+            try:
+                node.instruction.accept(self)
+            except BreakException:
+                break
+            except ContinueException:
+                pass
+
+            iterator = self.memoryStack.get(node.variable.name) + 1
+            self.memoryStack.set(node.variable.name, iterator)
 
     @when(AST.If)
     def visit(self, node):

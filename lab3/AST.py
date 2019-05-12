@@ -140,14 +140,14 @@ class While(Node):
 
 
 class For(Node):
-    def __init__(self, name, range, instruction, line):
-        self.name = name
+    def __init__(self, variable, range, instruction, line):
+        self.variable = variable
         self.range = range
         self.instruction = instruction
         self.line = line
 
     def __repr__(self):
-        return 'FOR {} IN {} DO {}'.format(self.name, self.range, self.instruction)
+        return 'FOR {} IN {} DO {}'.format(self.variable, self.range, self.instruction)
 
 
 class If(Node):

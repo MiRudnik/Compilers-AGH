@@ -271,7 +271,7 @@ class TypeChecker(NodeVisitor):
         self.nesting += 1
         self.symbol_table = self.symbol_table.pushScope('for')
         type = self.visit(node.range)
-        self.symbol_table.put(node.name, VariableSymbol(node.name, type))
+        self.symbol_table.put(node.variable, VariableSymbol(node.variable, type))
         self.visit(node.instruction)
         self.symbol_table = self.symbol_table.popScope()
         self.nesting -= 1
