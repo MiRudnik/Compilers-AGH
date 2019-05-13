@@ -2,7 +2,6 @@ from collections import defaultdict
 import lab3.AST as AST
 from lab4.SymbolTable import SymbolTable, VariableSymbol, VectorType
 
-
 typ = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: None)))
 standard_ops = ['+', '-', '*', '/']
 matrix_ops = ['.+', '.-', '.*', './']
@@ -73,11 +72,13 @@ class TypeChecker(NodeVisitor):
     def __init__(self):
         self.symbol_table = SymbolTable(None, 'main')
         self.nesting = 0
+        self.has_errors = False
 
     def visit_Variable(self, node):
         variable_type = self.symbol_table.get(node.name)
         if variable_type is None:
             print("[Semantic Error at line {}] Unknown variable!".format(node.line))
+            self.has_errors = True
             return ErrorType()
         return variable_type.type
 
@@ -101,9 +102,11 @@ class TypeChecker(NodeVisitor):
                     return VectorType(2, [len(contents), len(contents[0].elements)], initial_type)
                 else:
                     print("[Semantic Error at line {}] Incorrect vector types!".format(node.line))
+                    self.has_errors = True
                     return ErrorType()
             else:
                 print("[Semantic Error at line {}] Incorrect vector sizes!".format(node.line))
+                self.has_errors = True
                 return ErrorType()
         else:
             # 1 dimension
@@ -111,6 +114,7 @@ class TypeChecker(NodeVisitor):
                 return VectorType(1, [len(contents)], initial_type)
             else:
                 print("[Semantic Error at line {}] Incorrect vector types!".format(node.line))
+                self.has_errors = True
                 return ErrorType()
 
     def visit_Transpose(self, node):
@@ -119,11 +123,13 @@ class TypeChecker(NodeVisitor):
         if result_type is not None:
             if var_type.dims != 2:
                 print("[Semantic Error at line {}] Transpose only for matrices!".format(node.line))
+                self.has_errors = True
                 return ErrorType()
             var_type.sizes.reverse()
             return result_type
         else:
             print("[Semantic Error at line {}] Incorrect type for transpose!".format(node.line))
+            self.has_errors = True
             return ErrorType()
 
     def visit_UMinus(self, node):
@@ -133,6 +139,7 @@ class TypeChecker(NodeVisitor):
             return result_type
         else:
             print("[Semantic Error at line {}] Incorrect type for uminus!".format(node.line))
+            self.has_errors = True
             return ErrorType()
 
     def visit_BinExpr(self, node):
@@ -140,6 +147,7 @@ class TypeChecker(NodeVisitor):
         type2 = self.visit(node.right)
         operand = node.op
         if isinstance(type1, ErrorType) or isinstance(type2, ErrorType):
+            self.has_errors = True
             return ErrorType()
         result_type = typ[operand][str(type1)][str(type2)]
         if result_type is not None:
@@ -147,12 +155,14 @@ class TypeChecker(NodeVisitor):
                 if isinstance(type1, VectorType) and isinstance(type2, VectorType):
                     if type1.sizes != type2.sizes or type1.type != type2.type:
                         print("[Semantic Error at line {}] Different sizes of operands!".format(node.line))
+                        self.has_errors = True
                         return ErrorType()
                     else:
                         result_type = type1
             return result_type
         else:
             print("[Semantic Error at line {}] Incorrect types of operands!".format(node.line))
+            self.has_errors = True
             return ErrorType()
 
     def visit_RelExpr(self, node):
@@ -160,17 +170,20 @@ class TypeChecker(NodeVisitor):
         type2 = self.visit(node.right)
         operand = node.op
         if isinstance(type1, ErrorType) or isinstance(type2, ErrorType):
+            self.has_errors = True
             return ErrorType()
         result_type = typ[operand][str(type1)][str(type2)]
         if result_type is not None:
             return result_type
         else:
             print("[Semantic Error at line {}] Incorrect types of operands!".format(node.line))
+            self.has_errors = True
             return ErrorType()
 
     def visit_MatrixFunc(self, node):
         if len(node.args) != 1:
             print("[Semantic Error at line {}] Function takes only one parameter!".format(node.line))
+            self.has_errors = True
             return ErrorType()
         type = self.visit(node.args[0])
         if type == 'int':
@@ -180,16 +193,19 @@ class TypeChecker(NodeVisitor):
             return VectorType(2, [value, value], 'int')
         else:
             print("[Semantic Error at line {}] Supporting only integers in matrix functions!".format(node.line))
+            self.has_errors = True
             return ErrorType()
 
     def visit_Range(self, node):
         type = self.visit(node.left)
         if isinstance(type, ErrorType) or type not in range_types:
             print("[Semantic Error at line {}] Incorrect range expression type!".format(node.line))
+            self.has_errors = True
             return ErrorType()
         type = self.visit(node.right)
         if isinstance(type, ErrorType) or type not in range_types:
             print("[Semantic Error at line {}] Incorrect range expression type!".format(node.line))
+            self.has_errors = True
             return ErrorType()
         return type
 
@@ -197,6 +213,7 @@ class TypeChecker(NodeVisitor):
         type2 = self.visit(node.right)
         operand = node.op
         if isinstance(type2, ErrorType):
+            self.has_errors = True
             return ErrorType()
         if operand == '=':
             self.symbol_table.put(node.left.name, VariableSymbol(node.left.name, type2))
@@ -208,21 +225,25 @@ class TypeChecker(NodeVisitor):
                     if isinstance(type1, VectorType) and isinstance(type2, VectorType):
                         if type1.sizes != type2.sizes or type1.type != type2.type:
                             print("[Semantic Error at line {}] Different sizes of operands!".format(node.line))
+                            self.has_errors = True
                             return ErrorType()
                         else:
                             result_type = type1
                 return result_type
             else:
                 print("[Semantic Error at line {}] Incorrect types of operands!".format(node.line))
+                self.has_errors = True
                 return ErrorType()
 
     def visit_Ref(self, node):
         if len(node.args) > 2:
             print("[Semantic Error at line {}] Too many dimensions provided!".format(node.line))
+            self.has_errors = True
             return ErrorType()
         var_type = self.visit(node.name)
         if str(var_type) != 'vector':
             print("[Semantic Error at line {}] Variable not a vector!".format(node.line))
+            self.has_errors = True
             return ErrorType()
         types = [self.visit(x) for x in node.args]
         if len(types) == 1:
@@ -233,13 +254,16 @@ class TypeChecker(NodeVisitor):
                     value = node.args[0].value
                 if var_type.dims != 1:
                     print("[Semantic Error at line {}] Vector has different dimensions!".format(node.line))
+                    self.has_errors = True
                     return ErrorType()
                 if value >= var_type.sizes[0] or value < 0:
                     print("[Semantic Error at line {}] Index out of bounds!".format(node.line))
+                    self.has_errors = True
                     return ErrorType()
                 return var_type.type
             else:
                 print("[Semantic Error at line {}] Reference only supports integer parameters!".format(node.line))
+                self.has_errors = True
                 return ErrorType()
         else:
             # matrix
@@ -250,13 +274,16 @@ class TypeChecker(NodeVisitor):
                     value[1] = node.args[1].value
                 if var_type.dims != 2:
                     print("[Semantic Error at line {}] Vector has different dimensions!".format(node.line))
+                    self.has_errors = True
                     return ErrorType()
                 if value[0] >= var_type.sizes[0] or value[1] >= var_type.sizes[1]:
                     print("[Semantic Error at line {}] Index out of bounds!".format(node.line))
+                    self.has_errors = True
                     return ErrorType()
                 return var_type.type
             else:
                 print("[Semantic Error at line {}] Reference only supports integer parameters!".format(node.line))
+                self.has_errors = True
                 return ErrorType()
 
     def visit_While(self, node):
@@ -289,12 +316,12 @@ class TypeChecker(NodeVisitor):
     def visit_Break(self, node):
         if self.nesting <= 0:
             print("[Semantic Error at line {}] Break outside loop statement!".format(node.line))
-            return ErrorType()
+            self.has_errors = True
 
     def visit_Continue(self, node):
         if self.nesting <= 0:
             print("[Semantic Error at line {}] Continue outside loop statement!".format(node.line))
-            return ErrorType()
+            self.has_errors = True
 
     def visit_Print(self, node):
         self.visit(node.content)
@@ -308,12 +335,8 @@ class TypeChecker(NodeVisitor):
             self.visit(arg)
 
     def visit_Instructions(self, node):
-        errorType = None
         for instruction in node.list:
-            type = self.visit(instruction)
-            if isinstance(type, ErrorType):
-                errorType = type
-        return errorType
+            self.visit(instruction)
 
     def visit_Program(self, node):
         return self.visit(node.instructions)

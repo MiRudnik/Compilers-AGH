@@ -1,4 +1,5 @@
 import sys
+sys.path.append("..")
 import ply.yacc as yacc
 import lab2.Mparser as Mparser
 import lab3.TreePrinter as TreePrinter
@@ -20,13 +21,15 @@ if __name__ == '__main__':
 
     ast = parser.parse(text, lexer=Mparser.scanner.lexer)
 
-    # Below code shows how to use visitor
-    typeChecker = TypeChecker()
-    result = typeChecker.visit(ast)   # or alternatively ast.accept(typeChecker)
-
-    if result is None and not Mparser.has_errors:
-        ast.accept(Interpreter())
-        # in future
-        # ast.accept(OptimizationPass1())
-        # ast.accept(OptimizationPass2())
-        # ast.accept(CodeGenerator())
+    if not Mparser.has_errors:
+        typeChecker = TypeChecker()
+        typeChecker.visit(ast)  # or alternatively ast.accept(typeChecker)
+        if not typeChecker.has_errors:
+            ast.accept(Interpreter())
+            # ast.accept(OptimizationPass1())
+            # ast.accept(OptimizationPass2())
+            # ast.accept(CodeGenerator())
+        else:
+            print("File has semantic errors!")
+    else:
+        print("File has syntax errors!")

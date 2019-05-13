@@ -129,7 +129,7 @@ class TreePrinter:
         for _i in range(indent):
             print("|    ", end='')
         print("FOR")
-        self.name.printTree(indent + 1)
+        self.variable.printTree(indent + 1)
         self.range.printTree(indent + 1)
         self.instruction.printTree(indent + 1)
 

@@ -23,3 +23,5 @@ if __name__ == '__main__':
     if not Mparser.has_errors:
         typeChecker = TypeChecker()
         typeChecker.visit(ast)  # or alternatively ast.accept(typeChecker)
+    else:
+        print("File has syntax errors!")
