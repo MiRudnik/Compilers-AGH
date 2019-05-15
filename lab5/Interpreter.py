@@ -239,7 +239,7 @@ class Interpreter(object):
 
     @when(AST.Print)
     def visit(self, node):
-        print(str(node.content.accept(self)))
+        print(*node.content.accept(self), sep=", ")
 
     @when(AST.Return)
     def visit(self, node):
