@@ -104,11 +104,11 @@ class Interpreter(object):
         arg = node.args[0].accept(self)
 
         if node.func == "zeros":
-            return [[0 for x in range(arg)] for y in range(arg)]
+            return [[0 for _ in range(arg)] for _ in range(arg)]
         elif node.func == "ones":
-            return [[1 for x in range(arg)] for y in range(arg)]
+            return [[1 for _ in range(arg)] for _ in range(arg)]
         elif node.func == "eye":
-            eye = [[0 for x in range(arg)] for y in range(arg)]
+            eye = [[0 for _ in range(arg)] for _ in range(arg)]
             for i in range(0, arg):
                 eye[i][i] = 1
             return eye
