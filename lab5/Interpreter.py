@@ -153,14 +153,14 @@ class Interpreter(object):
 
                 self.memoryStack.set(node.left.name, result)
             elif isinstance(node.left, AST.Ref):
-                matrix = self.memoryStack.get(node.left.name)
-                args = node.left.args.accept(self)
+                matrix = self.memoryStack.get(node.left.name.name)
+                args = node.left.args
                 left = None
 
                 if len(args) == 1:
-                    left = matrix[args[0]]
+                    left = matrix[args[0].accept(self)]
                 elif len(args) == 2:
-                    left = matrix[args[0]][args[1]]
+                    left = matrix[args[0].accept(self)][args[1].accept(self)]
 
                 result = None
 
@@ -177,13 +177,13 @@ class Interpreter(object):
 
     @when(AST.Ref)
     def visit(self, node):
-        matrix = self.memoryStack.get(node.name)
-        args = node.args.accept(self)
+        matrix = self.memoryStack.get(node.name.name)
+        args = node.args
 
         if len(args) == 1:
-            return matrix[args[0]]
+            return matrix[args[0].accept(self)]
         elif len(args) == 2:
-            return matrix[args[0]][args[1]]
+            return matrix[args[0].accept(self)][args[1].accept(self)]
 
     @when(AST.While)
     def visit(self, node):
