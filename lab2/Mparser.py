@@ -190,12 +190,12 @@ def p_matrix(p):
 
 def p_matrix_values(p):
     '''matrix_values : vector
-                     | vector ',' matrix_values '''
+                     | matrix_values ',' vector '''
     if len(p) == 2:
         p[0] = AST.Vector([p[1]], p.lineno(1))
     else:
-        p[0] = p[3]
-        p[0].addValue(p[1])
+        p[0] = p[1]
+        p[0].addValue(p[3])
 
 
 def p_vector_1(p):
@@ -206,12 +206,12 @@ def p_vector_1(p):
 
 def p_vector_values(p):
     '''vector_values : const
-                     | const ',' vector_values '''
+                     | vector_values ',' const '''
     if len(p) == 2:
         p[0] = AST.Vector([p[1]], p.lineno(1))
     else:
-        p[0] = p[3]
-        p[0].addValue(p[1])
+        p[0] = p[1]
+        p[0].addValue(p[3])
 
 
 def p_expression_binop(p):

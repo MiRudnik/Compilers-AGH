@@ -13,9 +13,11 @@ for op in standard_ops + assign_ops:
     typ[op]['float']['int'] = 'float'
     typ[op]['float']['float'] = 'float'
     typ[op]['int']['int'] = 'int'
-    typ[op]['vector']['vector'] = 'vector'
 
 for op in matrix_ops:
+    typ[op]['vector']['vector'] = 'vector'
+
+for op in standard_ops[0:3] + assign_ops[0:3]:
     typ[op]['vector']['vector'] = 'vector'
 
 for op in relation_ops:
@@ -153,12 +155,28 @@ class TypeChecker(NodeVisitor):
         if result_type is not None:
             if result_type == 'vector':
                 if isinstance(type1, VectorType) and isinstance(type2, VectorType):
-                    if type1.sizes != type2.sizes or type1.type != type2.type:
-                        print("[Semantic Error at line {}] Different sizes of operands!".format(node.line))
+                    if type1.type != type2.type:
+                        print("[Semantic Error at line {}] Different types in matrices!".format(node.line))
                         self.has_errors = True
                         return ErrorType()
+                    if operand == '*':
+                        if type1.dims != 2:
+                            print("[Semantic Error at line {}] Multiplying only for matrices!".format(node.line))
+                            self.has_errors = True
+                            return ErrorType()
+                        elif type1.sizes[1] != type2.sizes[0]:
+                            print("[Semantic Error at line {}] Incorrect sizes for multiplication!".format(node.line))
+                            self.has_errors = True
+                            return ErrorType()
+                        else:
+                            result_type = VectorType(type1.dims, [type1.sizes[0], type2.sizes[1]], type1.type)
                     else:
-                        result_type = type1
+                        if type1.sizes != type2.sizes:
+                            print("[Semantic Error at line {}] Different sizes of operands!".format(node.line))
+                            self.has_errors = True
+                            return ErrorType()
+                        else:
+                            result_type = type1
             return result_type
         else:
             print("[Semantic Error at line {}] Incorrect types of operands!".format(node.line))
@@ -223,12 +241,29 @@ class TypeChecker(NodeVisitor):
             if result_type is not None:
                 if result_type == 'vector':
                     if isinstance(type1, VectorType) and isinstance(type2, VectorType):
-                        if type1.sizes != type2.sizes or type1.type != type2.type:
-                            print("[Semantic Error at line {}] Different sizes of operands!".format(node.line))
+                        if type1.type != type2.type:
+                            print("[Semantic Error at line {}] Different types in matrices!".format(node.line))
                             self.has_errors = True
                             return ErrorType()
+                        if operand == '*=':
+                            if type1.dims != 2:
+                                print("[Semantic Error at line {}] Multiplying only for matrices!".format(node.line))
+                                self.has_errors = True
+                                return ErrorType()
+                            elif type1.sizes[1] != type2.sizes[0]:
+                                print(
+                                    "[Semantic Error at line {}] Incorrect sizes for multiplication!".format(node.line))
+                                self.has_errors = True
+                                return ErrorType()
+                            else:
+                                result_type = VectorType(type1.dims, [type1.sizes[0], type2.sizes[1]], type1.type)
                         else:
-                            result_type = type1
+                            if type1.sizes != type2.sizes:
+                                print("[Semantic Error at line {}] Different sizes of operands!".format(node.line))
+                                self.has_errors = True
+                                return ErrorType()
+                            else:
+                                result_type = type1
                 return result_type
             else:
                 print("[Semantic Error at line {}] Incorrect types of operands!".format(node.line))

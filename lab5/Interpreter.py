@@ -29,8 +29,6 @@ matrixExprOp = {
     '*': (lambda x, y: numpy.array(numpy.matmul(x, y)).tolist()),
     '*=': (lambda x, y: numpy.array(numpy.matmul(x, y)).tolist()),
     '.*': (lambda x, y: numpy.multiply(numpy.array(x), numpy.array(y)).tolist()),
-    '/': (lambda x, y: numpy.array(numpy.matmul(numpy.matrix(x), numpy.linalg.inv(y))).tolist()),
-    '/=': (lambda x, y: numpy.array(numpy.matmul(numpy.matrix(x), numpy.linalg.inv(y))).tolist()),
     './': (lambda x, y: numpy.divide(numpy.array(x), numpy.array(y)).tolist()),
 }
 
@@ -77,6 +75,8 @@ class Interpreter(object):
         right = node.right.accept(self)
         if type(left) is not list and type(right) is not list:
             return binExprOp[node.op](left, right)
+        else:
+            return matrixExprOp[node.op](left, right)
 
     @when(AST.RelExpr)
     def visit(self, node):
@@ -88,8 +88,7 @@ class Interpreter(object):
     @when(AST.Transpose)
     def visit(self, node):
         matrix = numpy.array(self.memoryStack.get(node.name.name))
-        matrix.transpose()
-        return matrix
+        return matrix.transpose().tolist()
 
     @when(AST.UMinus)
     def visit(self, node):

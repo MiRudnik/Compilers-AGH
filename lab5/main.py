@@ -1,8 +1,6 @@
 import sys
 sys.path.append("..")
-import ply.yacc as yacc
 import lab2.Mparser as Mparser
-import lab3.TreePrinter as TreePrinter
 from lab4.TypeChecker import TypeChecker
 from lab5.Interpreter import Interpreter
 
@@ -10,7 +8,7 @@ from lab5.Interpreter import Interpreter
 if __name__ == '__main__':
 
     try:
-        filename = sys.argv[1] if len(sys.argv) > 1 else "../lab5/example.m"
+        filename = sys.argv[1] if len(sys.argv) > 1 else "example.m"
         file = open(filename, "r")
     except IOError:
         print("Cannot open {0} file".format(filename))
